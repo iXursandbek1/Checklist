@@ -91,6 +91,7 @@ extension ItemDetailViewController: UITextFieldDelegate {
     }
     
     func textFieldShouldClear(_ textField: UITextField) -> Bool {
+        doneBarButton.isEnabled = false
         return true
     }
 }
