@@ -29,6 +29,9 @@ class ItemDetailViewController: UITableViewController {
     
     @IBOutlet weak var doneBarButton: UIBarButtonItem!
     
+    @IBOutlet weak var shouldRemindSwitch: UISwitch!
+    @IBOutlet weak var datePicker: UIDatePicker!
+    
     weak var delegate: ItemDetailViewControllerDelegate?
     
     var itemToEdit: ChecklistItem?
@@ -42,6 +45,8 @@ class ItemDetailViewController: UITableViewController {
             title = "Edit Item"
             textField.text = item.text
             doneBarButton.isEnabled = true
+            shouldRemindSwitch.isOn = item.shouldRemind
+            datePicker.date = item.dueDate
          }
     }
     
@@ -50,23 +55,40 @@ class ItemDetailViewController: UITableViewController {
         
         textField.becomeFirstResponder()
     }
+    
+    @IBAction func shouldRemindToggled(_ switchControl: UISwitch) {
+      textField.resignFirstResponder()
+      if switchControl.isOn {
+        let center = UNUserNotificationCenter.current()
+        center.requestAuthorization(options: [.alert, .sound]) {_, _
+    in
+    } }
+    }
 
     // MARK: - Actions
     @IBAction func cancel() {
         delegate?.itemDetailViewControllerDidCancel(self)
     }
     @IBAction func done() {
-        
         if let item = itemToEdit {
-            item.text = textField.text!
-            delegate?.itemDetailViewController(self, didFinishEditing: item)
-            
-          } else {
-            let item = ChecklistItem()
-            item.text = textField.text!
-            delegate?.itemDetailViewController(self, didFinishAdding: item)
+          item.text = textField.text!
+          item.shouldRemind = shouldRemindSwitch.isOn
+          item.dueDate = datePicker.date
+          item.scheduleNotification()
+
+          delegate?.itemDetailViewController(
+            self,
+            didFinishEditing: item)
+        } else {
+          let item = ChecklistItem()
+          item.text = textField.text!
+          item.shouldRemind = shouldRemindSwitch.isOn
+          item.dueDate = datePicker.date
+          item.scheduleNotification()
+          
+          delegate?.itemDetailViewController(self, didFinishAdding: item)
         }
-    }
+      }
     
     override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
         return nil

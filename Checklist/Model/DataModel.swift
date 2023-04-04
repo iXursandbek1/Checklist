@@ -6,7 +6,15 @@
 //
 
 import Foundation
+
 class DataModel {
+    
+    class func nextChecklistItemID() -> Int {
+      let userDefaults = UserDefaults.standard
+      let itemID = userDefaults.integer(forKey: "ChecklistItemID")
+      userDefaults.set(itemID + 1, forKey: "ChecklistItemID")
+      return itemID
+    }
     
     var lists = [Checklist]()
     
